@@ -47,20 +47,17 @@ class AutoResizer(QMainWindow):
 
         self.btn = QPushButton('Get Value', self)
         self.btn.setGeometry(850, 400, 200, 50)
-        self.btn.clicked.connect(lambda: print(self.getSelectedItem()))
+        self.btn.clicked.connect(self.resize_auto)
 
-    def getSelectedItem(self):
-        item = QListWidgetItem(self.listbox_view.currentItem())
-        return item.text()
-
-    def resize_auto(image_path, desired_size = 1024):
-
-        image_path = './sloth2.jpg'
+    def resize_auto(self):
+        desired_size = 1024
+        image_path = QListWidgetItem(self.listbox_view.currentItem()).text()
 
         try: 
             img = Image.open(image_path)
-            original_width, original_height = img.size
+            original_width, original_height = img.size            
             ratio = 0
+
             if max(original_width, original_height) <= desired_size:
                 # return img
                 print('I aint done shit')
@@ -72,7 +69,7 @@ class AutoResizer(QMainWindow):
                 w, h = resized.size
                 print(w, h)
             else:   
-                ratio += original_height / float(original_width)
+                ratio += original_height / float(original_width)    
                 new_height = int(desired_size * ratio)
                 resized = img.resize((desired_size, new_height))
                 w, h = resized.size
