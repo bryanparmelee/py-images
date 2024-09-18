@@ -52,7 +52,9 @@ class AutoResizer(QMainWindow):
     def resize_auto(self):
         desired_size = 1024
         image_path = QListWidgetItem(self.listbox_view.currentItem()).text()
-
+        filepath = os.path.split(os.path.abspath(image_path))[0] + '/'
+        filename = os.path.splitext(os.path.basename(image_path))[0]
+        
         try: 
             img = Image.open(image_path)
             original_width, original_height = img.size            
@@ -66,14 +68,12 @@ class AutoResizer(QMainWindow):
                 ratio += original_width / float(original_height)
                 new_width = int(desired_size * ratio)
                 resized = img.resize((new_width, desired_size))
-                w, h = resized.size
-                print(w, h)
+                resized.save(filepath + filename + '-web.jpg')
             else:   
                 ratio += original_height / float(original_width)    
                 new_height = int(desired_size * ratio)
                 resized = img.resize((desired_size, new_height))
-                w, h = resized.size
-                print(w, h)
+                resized.save(filepath + filename + '-web.jpg')
         except TypeError:
             print(TypeError)
 
