@@ -1,7 +1,7 @@
 import sys, os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QListWidgetItem, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QListWidgetItem, QPushButton, QErrorMessage
 from PyQt5.QtCore import Qt, QUrl
-from PIL import Image 
+from PIL import Image, UnidentifiedImageError
 
 class ListBoxWidget(QListWidget):
     def __init__(self, parent=None):
@@ -49,6 +49,8 @@ class AutoResizer(QMainWindow):
         self.btn.setGeometry(850, 400, 200, 50)
         self.btn.clicked.connect(self.resize_auto)
 
+        self.error_dialog = QErrorMessage()
+
     def resize_auto(self):
         desired_size = 1024
         image_path = QListWidgetItem(self.listbox_view.currentItem()).text()
@@ -68,14 +70,30 @@ class AutoResizer(QMainWindow):
                 ratio += original_width / float(original_height)
                 new_width = int(desired_size * ratio)
                 resized = img.resize((new_width, desired_size))
-                resized.save(filepath + filename + '-web.jpg')
+                try:
+                    resized.save(filepath + filename + '-web.jpg')
+                except ValueError:
+                    self.error_dialog.showMessage("Output format could not be determined.")
+                except OSError:
+                    self.error_dialog.showMessage("File could not be written.")
             else:   
                 ratio += original_height / float(original_width)    
                 new_height = int(desired_size * ratio)
                 resized = img.resize((desired_size, new_height))
-                resized.save(filepath + filename + '-web.jpg')
+                try: 
+                    resized.save(filepath + filename + '-web.jpg')
+                except ValueError:
+                    self.error_dialog.showMessage("Output format could not be determined.")
+                except OSError:
+                    self.error_dialog.showMessage("File could not be written.")
+        except FileNotFoundError:
+            self.error_dialog.showMessage("File not found.")
+        except UnidentifiedImageError:
+            self.error_dialog.showMessage("Unsupported file type.")
+        except ValueError:
+            self.error_dialog.showMessage("Value error.")
         except TypeError:
-            print(TypeError)
+            self.error_dialog.showMessage("Type error.")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
