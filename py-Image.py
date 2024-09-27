@@ -1,6 +1,6 @@
 import sys, os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QListWidgetItem, QPushButton, QErrorMessage
-from PyQt5.QtCore import Qt, QUrl
+from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QPushButton, QErrorMessage, QMessageBox
+from PyQt5.QtCore import Qt
 from PIL import Image, UnidentifiedImageError
 
 class ListBoxWidget(QListWidget):
@@ -41,15 +41,16 @@ class AutoResizer(QMainWindow):
 
     def __init__(self):        
         super().__init__()
-        self.resize(1200, 600)
+        self.resize(600, 600)
         self.setWindowTitle("Auto Resizer")
         self.listbox_view = ListBoxWidget(self)
 
-        self.btn = QPushButton('Get Value', self)
-        self.btn.setGeometry(850, 400, 200, 50)
+        self.btn = QPushButton('Resize photos', self)
+        self.btn.setGeometry(200, 500, 200, 50)
         self.btn.clicked.connect(self.resize_auto)
 
         self.error_dialog = QErrorMessage()
+        self.message_box = QMessageBox()
 
     def resize_auto(self):
         desired_size = 1024
@@ -65,7 +66,7 @@ class AutoResizer(QMainWindow):
 
                 if max(original_width, original_height) <= desired_size:
                     try: 
-                        img.save(filepath + filename + '-web.jpg')     
+                        img.save(filepath + filename + '-web.jpg')    
                     except ValueError:
                         self.error_dialog.showMessage("Output format could not be determined.")
                     except OSError:
@@ -75,7 +76,7 @@ class AutoResizer(QMainWindow):
                     new_width = int(desired_size * ratio)
                     resized = img.resize((new_width, desired_size))
                     try:
-                        resized.save(filepath + filename + '-web.jpg')                
+                        resized.save(filepath + filename + '-web.jpg')             
                     except ValueError:
                         self.error_dialog.showMessage("Output format could not be determined.")
                     except OSError:
@@ -85,7 +86,7 @@ class AutoResizer(QMainWindow):
                     new_height = int(desired_size * ratio)
                     resized = img.resize((desired_size, new_height))
                     try: 
-                        resized.save(filepath + filename + '-web.jpg')      
+                        resized.save(filepath + filename + '-web.jpg')                       
                     except ValueError:
                         self.error_dialog.showMessage("Output format could not be determined.")
                     except OSError:
@@ -93,12 +94,12 @@ class AutoResizer(QMainWindow):
             except FileNotFoundError:
                 self.error_dialog.showMessage("File not found.")
             except UnidentifiedImageError:
-                self.error_dialog.showMessage("Unsupported file type.")
+                self.error_dialog.showMessage("File '" + os.path.basename(image_path) + "' is an unsupported file type.")
             except ValueError:
                 self.error_dialog.showMessage("Value error.")
             except TypeError:
                 self.error_dialog.showMessage("Type error.")
- 
+        self.message_box.information(None, "information", "Operation complete.")    
         self.listbox_view.clear()
         
 if __name__ == '__main__':
