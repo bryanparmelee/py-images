@@ -53,54 +53,59 @@ class AutoResizer(QMainWindow):
         self.message_box = QMessageBox()
 
     def resize_auto(self):
-        desired_size = 1024
-        ratio = 0
+        
         for i in range(self.listbox_view.count()):
-            image_path = self.listbox_view.item(i).text()
-            filepath = os.path.split(os.path.abspath(image_path))[0] + '/'
-            filename = os.path.splitext(os.path.basename(image_path))[0]
-            
-            try: 
-                img = Image.open(image_path)
-                original_width, original_height = img.size            
+            desired_size = 1024
+            url = self.listbox_view.item(i).text()
 
-                if max(original_width, original_height) <= desired_size:
-                    try: 
-                        img.save(filepath + filename + '-web.jpg')    
-                    except ValueError:
-                        self.error_dialog.showMessage("Output format could not be determined.")
-                    except OSError:
-                        self.error_dialog.showMessage("File could not be written.")                
-                elif original_height >= original_width:
-                    ratio += original_width / float(original_height)
-                    new_width = int(desired_size * ratio)
-                    resized = img.resize((new_width, desired_size))
-                    try:
-                        resized.save(filepath + filename + '-web.jpg')             
-                    except ValueError:
-                        self.error_dialog.showMessage("Output format could not be determined.")
-                    except OSError:
-                        self.error_dialog.showMessage("File could not be written.")
-                else:   
-                    ratio += original_height / float(original_width)    
-                    new_height = int(desired_size * ratio)
-                    resized = img.resize((desired_size, new_height))
-                    try: 
-                        resized.save(filepath + filename + '-web.jpg')                       
-                    except ValueError:
-                        self.error_dialog.showMessage("Output format could not be determined.")
-                    except OSError:
-                        self.error_dialog.showMessage("File could not be written.")
+            try:
+                self.save_image(url, desired_size)
             except FileNotFoundError:
                 self.error_dialog.showMessage("File not found.")
             except UnidentifiedImageError:
-                self.error_dialog.showMessage("File '" + os.path.basename(image_path) + "' is an unsupported file type.")
+                self.error_dialog.showMessage("File '" + os.path.basename(url) + "' is an unsupported file type.")
             except ValueError:
                 self.error_dialog.showMessage("Value error.")
             except TypeError:
                 self.error_dialog.showMessage("Type error.")
+               
         self.message_box.information(None, "information", "Operation complete.")    
         self.listbox_view.clear()
+
+    def save_image(self, url, desired_size):
+            path = os.path.split(os.path.abspath(url))[0] + '/'
+            name = os.path.splitext(os.path.basename(url))[0]
+            img = Image.open(url)
+            original_width, original_height = img.size
+
+            if max(original_width, original_height) <= desired_size:
+                try: 
+                    img.save(path + name + '-web.jpg')    
+                except ValueError:
+                    self.error_dialog.showMessage("Output format could not be determined.")
+                except OSError:
+                    self.error_dialog.showMessage("File could not be written.")                
+            elif original_height >= original_width:
+                ratio = original_width / float(original_height)
+                new_width = int(desired_size * ratio)
+                resized = img.resize((new_width, desired_size))
+                try:
+                    resized.save(path + name + '-web.jpg')             
+                except ValueError:
+                    self.error_dialog.showMessage("Output format could not be determined.")
+                except OSError:
+                    self.error_dialog.showMessage("File could not be written.")
+            else:   
+                ratio = original_height / float(original_width)    
+                new_height = int(desired_size * ratio)
+                resized = img.resize((desired_size, new_height))
+                try: 
+                    resized.save(path + name + '-web.jpg')                          
+                except ValueError:
+                    self.error_dialog.showMessage("Output format could not be determined.")
+                except OSError:
+                    self.error_dialog.showMessage("File could not be written.")
+ 
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)
