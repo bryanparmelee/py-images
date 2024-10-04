@@ -114,6 +114,7 @@ class AutoResizer(QMainWindow):
 
         self.progress_bar = QProgressBar(self)
         self.progress_bar.setGeometry(200, 550, 200, 25)   
+        self.progress_bar.hide()
 
         self.error_dialog = QErrorMessage()
         self.message_box = QMessageBox()
@@ -122,7 +123,8 @@ class AutoResizer(QMainWindow):
         self.thread = QThread(parent=self)
         self.worker = Worker()
         self.worker.moveToThread(self.thread)
-        self.thread.started.connect(self.worker.resizePhoto)
+        self.thread.started.connect(self.progress_bar.show)
+        self.thread.started.connect(self.worker.resizePhoto)     
         self.thread.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)   
@@ -140,7 +142,8 @@ class AutoResizer(QMainWindow):
     def resetAll(self):
         self.message_box.information(None, "information", "Operation complete.")    
         self.listbox_view.clear()
-        self.progress_bar.reset()     
+        self.progress_bar.reset()
+        self.progress_bar.hide()     
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)
