@@ -2,6 +2,9 @@ import sys, os
 from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QPushButton, QErrorMessage, QMessageBox, QProgressBar, QPushButton
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject
 from PIL import Image, UnidentifiedImageError
+from pillow_heif import register_heif_opener
+
+register_heif_opener()
 
 class Worker(QObject):
     finished = pyqtSignal()
