@@ -1,6 +1,6 @@
 import sys, os
 from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QPushButton, QErrorMessage, QMessageBox, QProgressBar, QPushButton
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject, pyqtSlot
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject
 from PIL import Image, UnidentifiedImageError
 
 class Worker(QObject):
@@ -115,16 +115,16 @@ class AutoResizer(QMainWindow):
         self.message_box = QMessageBox()
 
     def resize_auto(self):
-        self.thread = QThread()
+        self.thread = QThread(parent=self)
         self.worker = Worker()
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.worker.resizePhoto)
-        # self.thread.finished.connect(self.thread.quit)
+        self.thread.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)   
         self.worker.progress.connect(self.reportProgress)
-        self.worker.finished.connect(self.resetAll)
-        self.thread.start()        
+        self.worker.finished.connect(self.resetAll)  
+        self.thread.start()      
       
     def reportProgress(self, value):
         self.progress_bar.setValue(value)
