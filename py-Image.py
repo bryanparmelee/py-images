@@ -6,6 +6,7 @@ from PIL import Image, UnidentifiedImageError
 class Worker(QObject):
     finished = pyqtSignal()
     progress = pyqtSignal(int)
+    error = pyqtSignal(str)
 
     def resizePhoto(self):
         desired_size = 1024
@@ -18,13 +19,13 @@ class Worker(QObject):
             try:
                 self.save_image(url, desired_size)
             except FileNotFoundError:
-                demo.error_dialog.showMessage("File not found.")
+                self.error.emit("File not found.")      
             except UnidentifiedImageError:
-                demo.error_dialog.showMessage("File '" + os.path.basename(url) + "' is an unsupported file type.")
+                self.error.emit("File '" + os.path.basename(url) + "' is an unsupported file type.")
             except ValueError:
-                demo.error_dialog.showMessage("Value error.")
+                self.error.emit("Value error.")
             except TypeError:
-                demo.error_dialog.showMessage("Type error.")
+                self.error.emit("Type error.")
             self.progress.emit((i + 1) * percentage)
 
         self.finished.emit()
@@ -39,9 +40,9 @@ class Worker(QObject):
             try: 
                 img.save(path + name + '-web.jpg')    
             except ValueError:
-                demo.error_dialog.showMessage("Output format could not be determined.")
+                self.error.emit("Output format could not be determined.")
             except OSError:
-                demo.error_dialog.showMessage("File could not be written.")                
+                self.error.emit("File could not be written.")                
         elif original_height >= original_width:
             ratio = original_width / float(original_height)
             new_width = int(desired_size * ratio)
@@ -49,9 +50,9 @@ class Worker(QObject):
             try:
                 resized.save(path + name + '-web.jpg')             
             except ValueError:
-                demo.error_dialog.showMessage("Output format could not be determined.")
+                self.error.emit("Output format could not be determined.")
             except OSError:
-                demo.error_dialog.showMessage("File could not be written.")
+                self.error.emit("File could not be written.")
         else:   
             ratio = original_height / float(original_width)    
             new_height = int(desired_size * ratio)
@@ -59,9 +60,9 @@ class Worker(QObject):
             try: 
                 resized.save(path + name + '-web.jpg')                          
             except ValueError:
-                demo.error_dialog.showMessage("Output format could not be determined.")
+                self.error.emit("Output format could not be determined.")
             except OSError:
-                demo.error_dialog.showMessage("File could not be written.")                      
+                self.error.emit("File could not be written.")                      
 
 class ListBoxWidget(QListWidget):
     def __init__(self, parent=None):
@@ -123,11 +124,15 @@ class AutoResizer(QMainWindow):
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)   
         self.worker.progress.connect(self.reportProgress)
+        self.worker.error.connect(self.handleError)
         self.worker.finished.connect(self.resetAll)  
         self.thread.start()      
       
     def reportProgress(self, value):
         self.progress_bar.setValue(value)
+
+    def handleError(self, error):    
+        self.error_dialog.showMessage(error)
 
     def resetAll(self):
         self.message_box.information(None, "information", "Operation complete.")    
