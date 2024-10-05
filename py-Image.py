@@ -1,5 +1,5 @@
 import sys, os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QPushButton, QErrorMessage, QMessageBox, QProgressBar, QPushButton, QSpinBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QPushButton, QErrorMessage, QMessageBox, QProgressBar, QPushButton, QSpinBox, QWidget, QVBoxLayout, QLabel
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject
 from PIL import Image, UnidentifiedImageError
 from pillow_heif import register_heif_opener
@@ -111,13 +111,16 @@ class AutoResizer(QMainWindow):
             ListBoxWidget {                         
                 background-image: url(./dnd.png);                            
                                         }
-                                        ''')        
+                                        ''')
         
         self.spinbox = QSpinBox(self)
         self.spinbox.setMinimum(80)
         self.spinbox.setMaximum(5000)
         self.spinbox.setValue(1024)
-        self.spinbox.setGeometry(200, 450, 180, 30)        
+        self.spinbox.setGeometry(210, 450, 180, 30) 
+
+        self.label = QLabel("Desired size:", self)  
+        self.label.setGeometry(260, 430, 200, 20)    
 
         self.btn = QPushButton('Resize', self)
         self.btn.setGeometry(200, 500, 200, 50)
