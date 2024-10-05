@@ -1,5 +1,5 @@
 import sys, os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QPushButton, QErrorMessage, QMessageBox, QProgressBar, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QPushButton, QErrorMessage, QMessageBox, QProgressBar, QPushButton, QSpinBox
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject
 from PIL import Image, UnidentifiedImageError
 from pillow_heif import register_heif_opener
@@ -12,7 +12,7 @@ class Worker(QObject):
     error = pyqtSignal(str)
 
     def resizePhoto(self):
-        desired_size = 1024
+        desired_size = demo.spinbox.value()
         item_count = demo.listbox_view.count()
 
         for i in range(item_count):
@@ -107,8 +107,19 @@ class AutoResizer(QMainWindow):
         self.resize(600, 600)
         self.setWindowTitle("Auto Resizer")
         self.listbox_view = ListBoxWidget(self)
-    
-        self.btn = QPushButton('Resize photos', self)
+        self.listbox_view.setStyleSheet('''
+            ListBoxWidget {                         
+                background-image: url(./dnd.png);                            
+                                        }
+                                        ''')        
+        
+        self.spinbox = QSpinBox(self)
+        self.spinbox.setMinimum(80)
+        self.spinbox.setMaximum(5000)
+        self.spinbox.setValue(1024)
+        self.spinbox.setGeometry(200, 450, 180, 30)        
+
+        self.btn = QPushButton('Resize', self)
         self.btn.setGeometry(200, 500, 200, 50)
         self.btn.clicked.connect(self.resize_auto)
 
