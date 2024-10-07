@@ -1,9 +1,10 @@
-import sys, os
+import sys, os, time
 from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QPushButton, QErrorMessage, QMessageBox, QProgressBar, QPushButton, QSpinBox, QWidget, QVBoxLayout, QLabel
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject
 from PIL import Image, UnidentifiedImageError
 from pillow_heif import register_heif_opener
 
+# Add HEIC support
 register_heif_opener()
 
 class Worker(QObject):
@@ -107,10 +108,14 @@ class AutoResizer(QMainWindow):
         self.resize(600, 600)
         self.setWindowTitle("Auto Resizer")
         self.listbox_view = ListBoxWidget(self)
-        self.listbox_view.setStyleSheet('''
+        self.setStyleSheet('''
             ListBoxWidget {                         
                 background-image: url(./dnd.png);                            
                                         }
+            QProgressBar {
+                text-align: right;
+                margin-right: 40px;                    
+                           }
                                         ''')
         
         self.spinbox = QSpinBox(self)
@@ -119,19 +124,24 @@ class AutoResizer(QMainWindow):
         self.spinbox.setValue(1024)
         self.spinbox.setGeometry(210, 450, 180, 30) 
 
-        self.label = QLabel("Desired size:", self)  
-        self.label.setGeometry(260, 430, 200, 20)    
+        self.size_label = QLabel("Desired size:", self)  
+        self.size_label.setGeometry(260, 430, 200, 20)    
 
         self.btn = QPushButton('Resize', self)
-        self.btn.setGeometry(200, 500, 200, 50)
+        self.btn.setGeometry(200, 480, 200, 50)
         self.btn.clicked.connect(self.resize_auto)
 
         self.progress_bar = QProgressBar(self)
-        self.progress_bar.setGeometry(200, 550, 200, 25)   
+        self.progress_bar.setGeometry(205, 535, 230, 25)   
+        self.progress_bar.format()
         self.progress_bar.hide()
 
+
+        self.complete_label = QLabel("Operation complete!", self)
+        self.complete_label.setGeometry(240, 560, 200, 20)
+        self.complete_label.hide()
+
         self.error_dialog = QErrorMessage()
-        self.message_box = QMessageBox()
 
     def resize_auto(self):
         self.thread = QThread(parent=self)
@@ -154,10 +164,12 @@ class AutoResizer(QMainWindow):
         self.error_dialog.showMessage(error)
 
     def resetAll(self):
-        self.message_box.information(None, "information", "Operation complete.")    
+    
         self.listbox_view.clear()
         self.progress_bar.reset()
-        self.progress_bar.hide()     
+        self.progress_bar.hide()
+        self.complete_label.show()
+        self.complete_label.hide()     
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)
