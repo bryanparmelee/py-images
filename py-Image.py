@@ -1,5 +1,5 @@
 import sys, os, time
-from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QPushButton, QErrorMessage, QMessageBox, QProgressBar, QPushButton, QSpinBox, QWidget, QVBoxLayout, QLabel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QPushButton, QErrorMessage, QMessageBox, QProgressBar, QPushButton, QSpinBox, QLabel
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject
 from PIL import Image, UnidentifiedImageError
 from pillow_heif import register_heif_opener
@@ -134,43 +134,39 @@ class AutoResizer(QMainWindow):
         self.progress_bar = QProgressBar(self)
         self.progress_bar.setGeometry(205, 535, 230, 25)   
         self.progress_bar.format()
-        self.progress_bar.hide()
-
-
-        self.complete_label = QLabel("Operation complete!", self)
-        self.complete_label.setGeometry(240, 560, 200, 20)
-        self.complete_label.hide()
-
-        self.error_dialog = QErrorMessage()
+        self.progress_bar.hide()       
 
     def resize_auto(self):
         self.thread = QThread(parent=self)
         self.worker = Worker()
         self.worker.moveToThread(self.thread)
         self.thread.started.connect(self.progress_bar.show)
-        self.thread.started.connect(self.worker.resizePhoto)     
+        self.thread.started.connect(self.worker.resizePhoto)          
+        self.worker.progress.connect(self.reportProgress)
+        self.worker.error.connect(self.handleError)
         self.thread.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)   
-        self.worker.progress.connect(self.reportProgress)
-        self.worker.error.connect(self.handleError)
         self.worker.finished.connect(self.resetAll)  
+        
         self.thread.start()      
       
     def reportProgress(self, value):
         self.progress_bar.setValue(value)
 
-    def handleError(self, error):    
+    def showMessage(self):
+        QMessageBox.information(self, "Information", "Operation complete")
+
+    def handleError(self, error):   
+        self.error_dialog = QErrorMessage() 
         self.error_dialog.showMessage(error)
 
-    def resetAll(self):
-    
+    def resetAll(self):    
         self.listbox_view.clear()
         self.progress_bar.reset()
         self.progress_bar.hide()
-        self.complete_label.show()
-        self.complete_label.hide()     
-        
+        self.showMessage()
+          
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
