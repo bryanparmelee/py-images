@@ -1,6 +1,6 @@
-import sys, os, time
+import sys, os
 from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QPushButton, QErrorMessage, QMessageBox, QProgressBar, QPushButton, QSpinBox, QLabel
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject, QUrl
 from PIL import Image, UnidentifiedImageError
 from pillow_heif import register_heif_opener
 
@@ -106,7 +106,7 @@ class AutoResizer(QMainWindow):
     def __init__(self):        
         super().__init__()
         self.resize(600, 600)
-        self.setWindowTitle("Auto Resizer")
+        self.setWindowTitle("Image Resizer")
         self.listbox_view = ListBoxWidget(self)
         self.setStyleSheet('''
             ListBoxWidget {                         
