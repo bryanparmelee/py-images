@@ -1,3 +1,5 @@
-py-images/
+.DS_Store
 
-**/*.jpg
+py-images/
+dist/
+build/
