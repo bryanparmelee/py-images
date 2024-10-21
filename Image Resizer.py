@@ -38,6 +38,11 @@ class Worker(QObject):
         path = os.path.split(os.path.abspath(url))[0] + '/'
         name = os.path.splitext(os.path.basename(url))[0]
         img = Image.open(url)
+
+        #PNG to JPG support
+        if img.mode == 'RGBA':
+            img = img.convert('RGB')
+        
         original_width, original_height = img.size
 
         if max(original_width, original_height) <= desired_size:
