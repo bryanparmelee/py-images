@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidget, QPushButton,
 from PyQt5.QtCore import Qt, QThread, pyqtSignal, QObject, QUrl
 from PIL import Image, UnidentifiedImageError
 from pillow_heif import register_heif_opener
+import webp
 
 # Add HEIC support
 register_heif_opener()
@@ -37,7 +38,12 @@ class Worker(QObject):
     def save_image(self, url, desired_size):
         path = os.path.split(os.path.abspath(url))[0] + '/'
         name = os.path.splitext(os.path.basename(url))[0]
-        img = Image.open(url)
+        extension = os.path.splitext(os.path.basename(url))[1]
+        
+        if extension == '.webp':
+            img = webp.load_image(url, 'RGB')         
+        else:
+            img = Image.open(url)
 
         #PNG to JPG support
         if img.mode == 'RGBA':
